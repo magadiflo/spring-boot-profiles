@@ -135,3 +135,18 @@ dimos al archivo de propiedades.
 Si ejecutamos la aplicación, ahora veremos que Spring selecciona el perfil que fue configurado: `dev`.
 
 ![perfil dev](./assets/perfil-dev.png)
+
+### Enfoque n° 2: Configurando el parámetro del sistema JVM
+
+También podemos pasar el nombre del perfil en un parámetro del sistema JVM como se muestra a continuación. **El perfil
+especificado se activará durante el inicio de la aplicación.**
+
+En nuestro caso, para ejemplificar este enfoque nos posicionaremos mediante una terminal en la raíz de nuestra
+aplicación, y ejecutaremos nuestro proyecto con el siguiente comando (note que estamos especificando el perfil que
+queremos que se active, en este caso es el `test`):
+
+````bash
+mvn spring-boot:run -Dspring-boot.run.arguments=--spring.profiles.active=test
+````
+
+![perfil test](./assets/perfil-test.png)
