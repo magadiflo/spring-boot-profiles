@@ -14,16 +14,21 @@ el archivo `application.yml` también será el perfil predeterminado. `El perfil
 
 Si una propiedad se define en el perfil predeterminado, pero no en el perfil prod, el valor de la propiedad se rellenará
 a partir del perfil predeterminado. Esto es muy útil para definir valores predeterminados que son válidos en todos los
-perfiles. Por lo tanto, **debemos mantener todas las propiedades en el perfil predeterminado
-** (`application.properties`) que son **comunes en todos los perfiles**.
+perfiles. Por lo tanto, **debemos mantener todas las propiedades en el perfil predeterminado**
+(`application.properties`) que son **comunes en todos los perfiles**.
 
 **Perfil por default:** `application.properties`
 
 ````properties
+spring.application.name=Perfiles en Spring
 server.port=8081
+spring.profiles.active=dev
+app.info=Este es el archivo de propiedades por default
+app.parametro=${APP_PARAMETER}
 ````
 
-Si ejecutamos, tan solo teniendo el perfil por defecto `application.properties` en la aplicación, veremos lo siguiente:
+Si ejecutamos, tan solo teniendo el perfil por defecto `application.properties` en la aplicación, es decir no tenemos
+ningún otro archivo de perfil adicional, veremos lo siguiente:
 
 ![perfil default](./assets/perfil-default.png)
 
@@ -51,13 +56,13 @@ src/main/resources/
 Debemos **tener en cuenta la convención de la nomenclatura**. A continuación se muestra para los dos tipos de archivos
 `.properties` y `.yml`:
 
-> `application-<entorno>.properties`
+> `application-{entorno}.properties`
 >
-> `application-<entorno>.yml`
+> `application-{entorno}.yml`
 
 **DONDE**
 
-El `<entorno>` puede tomar cualquier nombre, en mi caso nombré a los entornos: `dev`, `prod` y `test`.
+El `{entorno}` puede tomar cualquier nombre, en mi caso nombré a los entornos: `dev`, `prod` y `test`.
 
 Ahora, insertemos algunas propiedades de configuración en estos archivos. Por ejemplo, agregaremos configuraciones
 de bases de datos que son diferentes en cada archivo `(estas configuraciones serán a modo de prueba, no son
@@ -67,6 +72,7 @@ Oracle DB para producción:
 **Perfil development:** `application-dev.properties`
 
 ````properties
+server.port=8082
 app.info=Este es el archivo de propiedades del entorno dev
 base.datos.h2.console.enabled=true
 base.datos.h2.console.path=/h2
@@ -74,11 +80,13 @@ base.datos.fuente.driver-class-name=org.h2.Driver
 base.datos.fuente.url=jdbc:h2:mem:db
 base.datos.fuente.usuario=sa
 base.datos.fuente.password=sa
+APP_PARAMETER=Enviado desde Development
 ````
 
 **Perfil test:** `application-test.properties`
 
 ````properties
+server.port=8083
 app.info=Este es el archivo de propiedades del entorno test
 base.datos.fuente.url=jdbc:mysql://localhost:3306/myTestDB
 base.datos.fuente.usuario=root
@@ -86,11 +94,13 @@ base.datos.fuente.password=123
 base.datos.fuente.driver-class-name=com.mysql.cj.jdbc.Driver
 base.datos.jpa.hibernate.ddl-auto=update
 base.datos.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
+APP_PARAMETER=Enviado desde Test
 ````
 
 **Perfil production:** `application-prod.properties`
 
 ````properties
+server.port=8084
 app.message=Este es el archivo de propiedades del entorno prod
 base.datos.fuente.url=jdbc:oracle:thin:@localhost:1521:xe
 base.datos.fuente.usuario=username
@@ -99,6 +109,7 @@ base.datos.jpa.hibernate.ddl-auto=update
 base.datos.jpa.show-sql=true
 base.datos.fuente.driver-class-name=oracle.jdbc.OracleDriver
 base.datos.jpa.properties.hibernate.dialect=org.hibernate.dialect.Oracle10gDialect
+APP_PARAMETER=Enviado desde Production
 ````
 
 Si no implementamos perfiles, tendremos que acomodar todas las entradas anteriores en un solo archivo
@@ -123,16 +134,18 @@ spring.application.name=Perfiles en Spring
 server.port=8081
 spring.profiles.active=dev
 app.info=Este es el archivo de propiedades por default
+app.parametro=${APP_PARAMETER}
 ````
 
 En el código anterior, el valor de la propiedad `spring.profiles.active` **indica a Spring qué perfil usar**.
 Aquí hemos establecido el perfil de desarrollo como activo. **Este es el enfoque más comúnmente utilizado para hacer
 que un perfil particular sea activo.**
 
-**¡Importante!**, el valor de la configuración `spring.profiles.active` tiene que ser el nombre del `<entorno>` que le
+**¡Importante!**, el valor de la configuración `spring.profiles.active` tiene que ser el nombre del `{entorno}` que le
 dimos al archivo de propiedades.
 
-Si ejecutamos la aplicación, ahora veremos que Spring selecciona el perfil que fue configurado: `dev`.
+Si ejecutamos la aplicación, ahora veremos que Spring selecciona el perfil que fue configurado `dev` con su puerto
+`8082`:
 
 ![perfil dev](./assets/perfil-dev.png)
 
@@ -164,3 +177,31 @@ priorizará los enfoques en el siguiente orden:
 3. Configurando el parámetro del sistema JVM
 4. Configurando perfiles activos en el pom.xml
 
+## Ejecutando perfil
+
+A modo de ejemplo **ejecutaremos el perfil de producción** para ver qué valores están tomando las propiedades:
+
+- Primero debemos configurar en el `application.properties` el perfil activo en `prod`:
+  > spring.profiles.active=prod
+- Ejecutamos la aplicación:
+
+  ![perfil-prod](./assets/perfil-prod.png)
+
+- Creamos un controlador que nos está retornando información de las propiedades del perfil:
+
+    ````bash
+    curl -v http://localhost:8084/api/v1/products | jq
+    
+    >
+    < HTTP/1.1 200
+    {
+      "port": 8084,
+      "parameter": "Enviado desde Production",
+      "url": "jdbc:oracle:thin:@localhost:1521:xe",
+      "info": "Este es el archivo de propiedades por default"
+    }
+    ````
+  
+Como observamos, el perfil `prod` se ha seleccionado correctamente, incluso vemos que no tenemos la propiedad 
+`app.info` en este perfil, pero sí lo tenemos en el perfil por default `application.properties`, por lo tanto, el valor
+lo tomará de este perfil por default.

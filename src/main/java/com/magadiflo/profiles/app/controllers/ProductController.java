@@ -14,12 +14,20 @@ public class ProductController {
 
     @Value("${server.port}")
     private Integer port;
+    @Value("${app.info}")
+    private String info;
+    @Value("${app.parametro}")
+    private String parameter;
+    @Value("${base.datos.fuente.url}")
+    private String url;
 
     @GetMapping
     public Map<String, Object> showMessage() {
         Map<String, Object> response = new HashMap<>();
-        response.put("saludo", "Hola Mundo");
-        response.put("puerto", port);
+        response.put("port", port);
+        response.put("info", info);
+        response.put("parameter", parameter);
+        response.put("url", url);
 
         return response;
     }
