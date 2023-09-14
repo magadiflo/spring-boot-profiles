@@ -150,3 +150,17 @@ mvn spring-boot:run -Dspring-boot.run.arguments=--spring.profiles.active=test
 ````
 
 ![perfil test](./assets/perfil-test.png)
+
+Existen otras formas de configurar el perfil activo, para más información ir a la fuente
+[javatechonline](https://javatechonline.com/profiles-in-spring-boot/#How_to_Activate_a_Particular_Profile).
+
+## Prioridad en el uso de múltiples enfoques
+
+Supongamos que hemos utilizado varios enfoques en el mismo proyecto para establecer un perfil activo, entonces Spring
+priorizará los enfoques en el siguiente orden:
+
+1. Configurando un parámetro de contexto en web.xml
+2. Implementando la interfaz WebApplicationInitializer
+3. Configurando el parámetro del sistema JVM
+4. Configurando perfiles activos en el pom.xml
+
