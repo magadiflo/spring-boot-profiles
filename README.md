@@ -104,3 +104,34 @@ base.datos.jpa.properties.hibernate.dialect=org.hibernate.dialect.Oracle10gDiale
 Si no implementamos perfiles, tendremos que acomodar todas las entradas anteriores en un solo archivo
 `application.properties`. Además, si queremos cambiar a un perfil diferente, tendremos que hacer muchos cambios cada
 vez. Por lo tanto, mantener un perfil separado para cada entorno ahorra mucho esfuerzo.
+
+## ¿Cómo activar un perfil en particular?
+
+Aunque, tenemos múltiples formas de hacer que un perfil en particular sea activo. Discutamos algunos de ellos uno por
+uno.
+
+### Enfoque n° 1: Configurando `spring.profiles.active` en `application.properties`
+
+El archivo `application.properties` **será el jefe entre todos los archivos de propiedades**. Aquí especificaremos qué
+perfil está activo estableciendo el valor de la propiedad `spring.profiles.active`. Por ejemplo, a continuación el
+archivo `application.properties` nos indica que actualmente el perfil "development (dev)" está activo.
+
+**Perfil por default:** `application.properties`
+
+````properties
+spring.application.name=Perfiles en Spring
+server.port=8081
+spring.profiles.active=dev
+app.info=Este es el archivo de propiedades por default
+````
+
+En el código anterior, el valor de la propiedad `spring.profiles.active` **indica a Spring qué perfil usar**.
+Aquí hemos establecido el perfil de desarrollo como activo. **Este es el enfoque más comúnmente utilizado para hacer
+que un perfil particular sea activo.**
+
+**¡Importante!**, el valor de la configuración `spring.profiles.active` tiene que ser el nombre del `<entorno>` que le
+dimos al archivo de propiedades.
+
+Si ejecutamos la aplicación, ahora veremos que Spring selecciona el perfil que fue configurado: `dev`.
+
+![perfil dev](./assets/perfil-dev.png)
