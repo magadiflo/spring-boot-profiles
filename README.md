@@ -10,19 +10,20 @@ Spring Boot viene con un archivo de propiedades, llamado archivo `application.pr
 **(default)**. Por lo tanto, `este archivo es el perfil predeterminado, es el perfil por default`. Del mismo modo,
 el archivo `application.yml` también será el perfil predeterminado. `El perfil predeterminado siempre está activo`.
 
-`Spring Boot carga primero todas las propiedades del perfil predeterminado`.
+`Spring Boot carga primero todas las propiedades del perfil predeterminado (default)`.
 
 Si una propiedad se define en el perfil predeterminado, pero no en el perfil prod, el valor de la propiedad se rellenará
 a partir del perfil predeterminado. Esto es muy útil para definir valores predeterminados que son válidos en todos los
 perfiles. Por lo tanto, **debemos mantener todas las propiedades en el perfil predeterminado**
 (`application.properties`) que son **comunes en todos los perfiles**.
 
+A continuación se muestran algunas propiedades iniciales agregadas en el **perfil por default**:
+
 **Perfil por default:** `application.properties`
 
 ````properties
 spring.application.name=Perfiles en Spring
 server.port=8081
-spring.profiles.active=dev
 app.info=Este es el archivo de propiedades por default
 app.parametro=${APP_PARAMETER}
 ````
@@ -32,8 +33,8 @@ ningún otro archivo de perfil adicional, veremos lo siguiente:
 
 ![perfil default](./assets/perfil-default.png)
 
-El resultado muestra que al no tener más perfiles en la aplicación y además al no haber establecido uno en particular,
-el perfil por default es el que se usa.
+El resultado muestra que al **no tener más perfiles en la aplicación** y además al no haber establecido uno en
+particular, **el perfil por default es el que se usa**.
 
 ## ¿Cómo crear un perfil en Spring?
 
@@ -156,7 +157,7 @@ especificado se activará durante el inicio de la aplicación.**
 
 En nuestro caso, para ejemplificar este enfoque nos posicionaremos mediante una terminal en la raíz de nuestra
 aplicación, y ejecutaremos nuestro proyecto con el siguiente comando (note que estamos especificando el perfil que
-queremos que se active, en este caso es el `test`):
+queremos que se active, en este caso es el `test`:
 
 ````bash
 mvn spring-boot:run -Dspring-boot.run.arguments=--spring.profiles.active=test
@@ -201,7 +202,7 @@ A modo de ejemplo **ejecutaremos el perfil de producción** para ver qué valore
       "info": "Este es el archivo de propiedades por default"
     }
     ````
-  
-Como observamos, el perfil `prod` se ha seleccionado correctamente, incluso vemos que no tenemos la propiedad 
+
+Como observamos, el perfil `prod` se ha seleccionado correctamente, incluso vemos que no tenemos la propiedad
 `app.info` en este perfil, pero sí lo tenemos en el perfil por default `application.properties`, por lo tanto, el valor
 lo tomará de este perfil por default.
