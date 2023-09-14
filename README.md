@@ -206,3 +206,104 @@ A modo de ejemplo **ejecutaremos el perfil de producción** para ver qué valore
 Como observamos, el perfil `prod` se ha seleccionado correctamente, incluso vemos que no tenemos la propiedad
 `app.info` en este perfil, pero sí lo tenemos en el perfil por default `application.properties`, por lo tanto, el valor
 lo tomará de este perfil por default.
+
+## ¿Cómo comprobar qué perfil está activo actualmente?
+
+Hay dos formas de hacerlo:
+
+### Enfoque n° 1: Uso del objeto environment
+
+Podemos usar el objeto `Environment` de Java como un `bean` a través del `@Autowired` o usando `inyección de dependencía
+vía constructor`, para obtener el perfil activo como se muestra a continuación:
+
+````java
+
+@RestController
+@RequestMapping(path = "/api/v1/products")
+public class ProductController {
+    /* other code */
+    private final Environment environment;
+
+    public ProductController(Environment environment) {
+        this.environment = environment;
+    }
+
+    @GetMapping
+    public Map<String, Object> showMessage() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("port", port);
+        response.put("info", info);
+        response.put("parameter", parameter);
+        response.put("url", url);
+        response.put("profiles", this.getProfiles());
+
+        return response;
+    }
+
+    private String getProfiles() {
+        return String.join(", ", environment.getActiveProfiles());
+    }
+}
+````
+
+![get-profiles-actives](./assets/get-profiles-actives.png)
+
+````bash
+curl -v http://localhost:8084/api/v1/products | jq
+
+>
+< HTTP/1.1 200
+{
+  "port": 8084,
+  "parameter": "Enviado desde Production",
+  "profiles": "prod",
+  "url": "jdbc:oracle:thin:@localhost:1521:xe",
+  "info": "Este es el archivo de propiedades por default"
+}
+````
+
+### Enfoque n° 2: Inyectando la propiedad 'spring.profiles.active'
+
+Similar al siguiente código:
+
+````java
+
+@RestController
+@RequestMapping(path = "/api/v1/products")
+public class ProductController {
+
+    /* other code */
+
+    @Value("${spring.profiles.active}")
+    private String activeProfiles;
+
+    @GetMapping
+    public Map<String, Object> showMessage() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("port", port);
+        response.put("info", info);
+        response.put("parameter", parameter);
+        response.put("url", url);
+        response.put("profiles-environment", this.getProfiles());
+        response.put("profiles-properties", activeProfiles);
+
+        return response;
+    }
+}
+````
+
+````bash
+curl -v http://localhost:8084/api/v1/products | jq
+
+>
+< HTTP/1.1 200
+<
+{
+  "profiles-properties": "prod",
+  "port": 8084,
+  "parameter": "Enviado desde Production",
+  "profiles-environment": "prod",
+  "url": "jdbc:oracle:thin:@localhost:1521:xe",
+  "info": "Este es el archivo de propiedades por default"
+}
+````
